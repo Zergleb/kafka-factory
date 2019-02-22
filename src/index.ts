@@ -106,7 +106,7 @@ export interface EventDescriptor<_Key, _Subject> {
   readonly valueSubject: string;
   readonly valueSubjectVersion: string;
   readonly consumerGroupId?: string;
-  readonly topic: string;
+  readonly topic?: string;
 }
 
 export interface KafkaMessage<Key, Subject> {
