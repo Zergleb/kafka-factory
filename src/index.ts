@@ -102,9 +102,9 @@ export default class KafkaFactory {
 
 export interface EventDescriptor<_Key, _Subject> {
   readonly keySubject: string;
-  readonly keySubjectVersion: [string | number];
+  readonly keySubjectVersion: any;
   readonly valueSubject: string;
-  readonly valueSubjectVersion: [string | number];
+  readonly valueSubjectVersion: any;
   readonly consumerGroupId?: string;
   readonly topic?: string;
 }
