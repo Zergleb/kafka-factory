@@ -102,7 +102,10 @@ export default class KafkaFactory {
   }
 
   private buildKafkaClient() {
-    return new kafka.KafkaClient(this.kafkaClientOptions);
+    return new kafka.KafkaClient({
+      ...this.kafkaClientOptions,
+      sslOptions: this.kafkaClientOptions.sasl ? true : false
+    });
   }
 }
 
