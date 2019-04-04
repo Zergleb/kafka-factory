@@ -9,7 +9,7 @@
   "license": "MIT",
   "keywords": [],
   "scripts": {
-    "prepublish": "npm version patch",
+    "prepare": "npm version patch",
     "buildandpublish": "npm run build && npm publish",
     "describe": "npm-scripts-info",
     "build": "run-s clean && run-p build:*",
