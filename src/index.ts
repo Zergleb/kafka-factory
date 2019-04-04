@@ -1,13 +1,13 @@
 import registryFactory from 'avro-registry-client';
-import kafka, { ConsumerOptions } from 'kafka-node';
+import kafka, { ConsumerOptions, KafkaClientOptions } from 'kafka-node';
 
 export default class KafkaFactory {
   private registry;
-  private kafkaHost: string;
+  private kafkaClientOptions: KafkaClientOptions;
 
-  constructor(kafkaHost: string, registryUrl: string) {
+  constructor(kafkaClientOptions: KafkaClientOptions, registryUrl: string) {
     this.registry = registryFactory(registryUrl);
-    this.kafkaHost = kafkaHost;
+    this.kafkaClientOptions = kafkaClientOptions;
   }
 
   public buildProducer<Key, Subject>(
@@ -67,11 +67,19 @@ export default class KafkaFactory {
       consumerOptions
     );
     this.registry
-      .createConsumer(kafkaConsumer)
-      .messageType()
-      .valueSubject(descriptor.valueSubject, descriptor.valueSubjectVersion)
-      .keySubject(descriptor.keySubject, descriptor.keySubjectVersion)
-      .handler(handler)
+      .createConsumer(kafkaConsumer, [
+        {
+          handler,
+          keySubject: {
+            subject: descriptor.keySubject,
+            version: descriptor.keySubjectVersion
+          },
+          valueSubject: {
+            subject: descriptor.valueSubject,
+            version: descriptor.valueSubjectVersion
+          }
+        }
+      ])
       .listen(err);
     return { kafkaConsumer, kafkaClient };
   }
@@ -95,16 +103,17 @@ export default class KafkaFactory {
 
   private buildKafkaClient() {
     return new kafka.KafkaClient({
-      kafkaHost: this.kafkaHost
+      ...this.kafkaClientOptions,
+      sslOptions: this.kafkaClientOptions.sasl ? true : false
     });
   }
 }
 
 export interface EventDescriptor<_Key, _Subject> {
   readonly keySubject: string;
-  readonly keySubjectVersion: [string | number];
+  readonly keySubjectVersion: 'latest' | number;
   readonly valueSubject: string;
-  readonly valueSubjectVersion: [string | number];
+  readonly valueSubjectVersion: 'latest' | number;
   readonly consumerGroupId?: string;
   readonly topic?: string;
 }
